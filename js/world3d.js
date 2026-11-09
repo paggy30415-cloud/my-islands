@@ -63,15 +63,38 @@ window.IsleWorld = (function () {
   function figure(style, scale = 1) {
     const g = new T.Group();
     const skin = mat(0xf0c9a0);
-    const legs = mesh(new T.CylinderGeometry(0.22, 0.26, 0.6, 6), mat(0x3b4a52)); legs.position.y = 0.3; g.add(legs);
+    const legs = mesh(new T.CylinderGeometry(0.22, 0.26, 0.6, 6), mat(style.legs || 0x3b4a52)); legs.position.y = 0.3; g.add(legs);
     const body = mesh(new T.CylinderGeometry(0.3, 0.38, 0.75, 7), mat(style.body)); body.position.y = 0.95; g.add(body);
     const head = mesh(new T.IcosahedronGeometry(0.3, 1), skin); head.position.y = 1.55; g.add(head);
-    let hat;
+
+    // 西裝：白襯衫、領帶、翻領
+    if (style.suit) {
+      const shirt = mesh(new T.BoxGeometry(0.2, 0.5, 0.06), mat(0xf5f5f7)); shirt.position.set(0, 1.08, 0.31); g.add(shirt);
+      const tie = mesh(new T.BoxGeometry(0.08, 0.3, 0.05), mat(0x1c1c1e)); tie.position.set(0, 1.02, 0.35); g.add(tie);
+      const lapelL = mesh(new T.BoxGeometry(0.12, 0.4, 0.05), mat(shade(style.body, 0.8))); lapelL.position.set(-0.14, 1.1, 0.32); lapelL.rotation.z = 0.28; g.add(lapelL);
+      const lapelR = lapelL.clone(); lapelR.position.x = 0.14; lapelR.rotation.z = -0.28; g.add(lapelR);
+    }
+    // 長髮與綁起來的髮髻
+    if (style.hair) {
+      const hair = mesh(new T.SphereGeometry(0.32, 8, 6), mat(style.hair)); hair.position.set(0, 1.55, -0.1); hair.scale.set(1.02, 1.05, 0.95); g.add(hair);
+      if (style.hairTied) {
+        const bun = mesh(new T.SphereGeometry(0.17, 8, 6), mat(style.hair)); bun.position.set(0, 1.42, -0.36); g.add(bun);
+      }
+    }
+    let hat = null;
     if (style.hat === "cone") { hat = mesh(new T.ConeGeometry(0.36, 0.5, 7), mat(style.hatColor)); hat.position.y = 1.95; }
     else if (style.hat === "cap") { hat = mesh(new T.CylinderGeometry(0.32, 0.33, 0.2, 8), mat(style.hatColor)); hat.position.y = 1.8; }
-    else { hat = mesh(new T.SphereGeometry(0.34, 8, 5, 0, Math.PI * 2, 0, Math.PI / 2), mat(style.hatColor)); hat.position.y = 1.72; }
-    g.add(hat);
+    else if (style.hat !== "none") { hat = mesh(new T.SphereGeometry(0.34, 8, 5, 0, Math.PI * 2, 0, Math.PI / 2), mat(style.hatColor)); hat.position.y = 1.72; }
+    if (hat) g.add(hat);
     if (style.pack) { const pack = mesh(new T.BoxGeometry(0.4, 0.45, 0.22), mat(style.pack)); pack.position.set(0, 1.0, -0.35); g.add(pack); }
+    // 手上拿夾子
+    if (style.tongs) {
+      const arm = mesh(new T.CylinderGeometry(0.07, 0.08, 0.55, 6), mat(style.body)); arm.position.set(0.36, 1.0, 0.06); arm.rotation.z = -0.35; g.add(arm);
+      const hand = mesh(new T.SphereGeometry(0.09, 6, 5), mat(0xf0c9a0)); hand.position.set(0.47, 0.76, 0.1); g.add(hand);
+      [-0.05, 0.05].forEach((dx, i) => {
+        const tong = mesh(new T.BoxGeometry(0.045, 0.62, 0.045), mat(0x9a9aa0)); tong.position.set(0.47 + dx, 0.5, 0.12); tong.rotation.z = i ? 0.16 : -0.16; g.add(tong);
+      });
+    }
     g.scale.setScalar(scale);
     return g;
   }
@@ -100,7 +123,7 @@ window.IsleWorld = (function () {
   function tree(r) {
     const g = new T.Group();
     const trunk = mesh(new T.CylinderGeometry(0.12, 0.18, 0.9, 6), mat(0x7a5236)); trunk.position.y = 0.45; g.add(trunk);
-    const greens = [0x2f6b3f, 0x3d7d47, 0x285e38, 0x4b8a4c];
+    const greens = [0x8f9e97, 0x9aa8a2, 0x84938c, 0xa8b5ae];
     if (r() < 0.55) {
       for (let k = 0; k < 2; k++) {
         const c = mesh(new T.ConeGeometry(0.85 - k * 0.22, 1.3, 7), mat(greens[Math.floor(r() * 4)]));
@@ -123,9 +146,9 @@ window.IsleWorld = (function () {
   function house(roof, r) {
     const g = new T.Group();
     const w = 1.3 + r() * 0.6, d = 1.1 + r() * 0.4;
-    const body = mesh(new T.BoxGeometry(w, 1.05, d), mat(0xf1e6cf)); body.position.y = 0.52; g.add(body);
+    const body = mesh(new T.BoxGeometry(w, 1.05, d), mat(0xf7f7f8)); body.position.y = 0.52; g.add(body);
     const top = mesh(new T.ConeGeometry(Math.max(w, d) * 0.82, 0.9, 4), mat(roof)); top.position.y = 1.5; top.rotation.y = Math.PI / 4; g.add(top);
-    const door = mesh(new T.BoxGeometry(0.3, 0.55, 0.05), mat(0x6b4429)); door.position.set(0, 0.28, d / 2 + 0.01); g.add(door);
+    const door = mesh(new T.BoxGeometry(0.3, 0.55, 0.05), mat(0x8e8e93)); door.position.set(0, 0.28, d / 2 + 0.01); g.add(door);
     const win = mesh(new T.BoxGeometry(0.28, 0.25, 0.05), mat(0xbfe3ef, { emissive: 0xffd27a, emissiveIntensity: 0 })); win.position.set(w * 0.28, 0.65, d / 2 + 0.01); g.add(win);
     lamps.push(win.material);
     return g;
@@ -133,10 +156,10 @@ window.IsleWorld = (function () {
   function dock(len) {
     const g = new T.Group();
     for (let k = 0; k < len; k++) {
-      const plank = mesh(new T.BoxGeometry(1.6, 0.12, 0.42), mat(k % 2 ? 0x8a6142 : 0x9b6f4b)); plank.position.set(0, 0.35, k * 0.46); g.add(plank);
+      const plank = mesh(new T.BoxGeometry(1.6, 0.12, 0.42), mat(k % 2 ? 0xc9c9ce : 0xb8b8be)); plank.position.set(0, 0.35, k * 0.46); g.add(plank);
     }
     [[-0.75, 0.2], [0.75, 0.2], [-0.75, len * 0.46 - 0.2], [0.75, len * 0.46 - 0.2]].forEach(([x, z]) => {
-      const post = mesh(new T.CylinderGeometry(0.09, 0.09, 1.1, 6), mat(0x5d4330)); post.position.set(x, 0.1, z); g.add(post);
+      const post = mesh(new T.CylinderGeometry(0.09, 0.09, 1.1, 6), mat(0x8e8e93)); post.position.set(x, 0.1, z); g.add(post);
     });
     return g;
   }
@@ -151,7 +174,7 @@ window.IsleWorld = (function () {
     define(accent) { // 燈塔
       const g = new T.Group();
       for (let k = 0; k < 5; k++) {
-        const s = mesh(new T.CylinderGeometry(0.62 - k * 0.07, 0.7 - k * 0.07, 0.75, 10), mat(k % 2 ? accent : 0xf6f2ea));
+        const s = mesh(new T.CylinderGeometry(0.62 - k * 0.07, 0.7 - k * 0.07, 0.75, 10), mat(k % 2 ? accent : 0xf7f7f9));
         s.position.y = 0.37 + k * 0.75; g.add(s);
       }
       const glow = mesh(new T.CylinderGeometry(0.42, 0.42, 0.5, 10), mat(0xfff0b5, { emissive: 0xffd36b, emissiveIntensity: 0.8 })); glow.position.y = 4.05; g.add(glow);
@@ -161,13 +184,13 @@ window.IsleWorld = (function () {
     },
     ideate(accent) { // 風車
       const g = new T.Group();
-      const tw = mesh(new T.CylinderGeometry(0.75, 1.1, 3, 8), mat(0xe9dcc2)); tw.position.y = 1.5; g.add(tw);
+      const tw = mesh(new T.CylinderGeometry(0.75, 1.1, 3, 8), mat(0xf2f2f4)); tw.position.y = 1.5; g.add(tw);
       const cap = mesh(new T.ConeGeometry(1.0, 1.0, 8), mat(accent)); cap.position.y = 3.5; g.add(cap);
       const hub = new T.Group(); hub.position.set(0, 2.9, 1.0); g.add(hub);
       for (let k = 0; k < 4; k++) {
         const arm = new T.Group(); arm.rotation.z = (k / 4) * Math.PI * 2;
-        const pole = mesh(new T.BoxGeometry(0.1, 2.2, 0.08), mat(0x6b4a30)); pole.position.y = 1.1; arm.add(pole);
-        const sail = mesh(new T.BoxGeometry(0.55, 1.5, 0.04), mat(0xf7f2e6)); sail.position.set(0.3, 1.3, 0); arm.add(sail);
+        const pole = mesh(new T.BoxGeometry(0.1, 2.2, 0.08), mat(0x8e8e93)); pole.position.y = 1.1; arm.add(pole);
+        const sail = mesh(new T.BoxGeometry(0.55, 1.5, 0.04), mat(0xffffff)); sail.position.set(0.3, 1.3, 0); arm.add(sail);
         hub.add(arm);
       }
       g.userData.spin = hub;
@@ -175,11 +198,11 @@ window.IsleWorld = (function () {
     },
     build(accent) { // 工坊
       const g = new T.Group();
-      const shop = mesh(new T.BoxGeometry(2.6, 1.5, 1.8), mat(0xd9c2a0)); shop.position.y = 0.75; g.add(shop);
+      const shop = mesh(new T.BoxGeometry(2.6, 1.5, 1.8), mat(0xe8e8ea)); shop.position.y = 0.75; g.add(shop);
       const roof = mesh(new T.BoxGeometry(2.9, 0.25, 2.1), mat(accent)); roof.position.y = 1.62; g.add(roof);
       const chim = mesh(new T.CylinderGeometry(0.22, 0.26, 1.3, 6), mat(0x5e5e5e)); chim.position.set(0.8, 2.3, -0.4); g.add(chim);
       const anvil = mesh(new T.BoxGeometry(0.7, 0.4, 0.35), mat(0x3d4246)); anvil.position.set(-1.8, 0.2, 1.2); g.add(anvil);
-      const crate = mesh(new T.BoxGeometry(0.6, 0.6, 0.6), mat(0xc79a5a)); crate.position.set(1.8, 0.3, 1.3); g.add(crate);
+      const crate = mesh(new T.BoxGeometry(0.6, 0.6, 0.6), mat(0xb8b8be)); crate.position.set(1.8, 0.3, 1.3); g.add(crate);
       const smoke = [];
       for (let k = 0; k < 3; k++) {
         const puff = mesh(new T.IcosahedronGeometry(0.28, 0), mat(0xe6e6e6, { transparent: true }), false);
@@ -191,27 +214,44 @@ window.IsleWorld = (function () {
     test(accent) { // 帳篷和觀察台
       const g = new T.Group();
       const tent = mesh(new T.ConeGeometry(1.4, 1.8, 6), mat(accent)); tent.position.y = 0.9; g.add(tent);
-      const deck = mesh(new T.BoxGeometry(1.4, 0.15, 1.4), mat(0x8a6142)); deck.position.set(-2, 1.6, 0.4); g.add(deck);
+      const deck = mesh(new T.BoxGeometry(1.4, 0.15, 1.4), mat(0xc9c9ce)); deck.position.set(-2, 1.6, 0.4); g.add(deck);
       [[-0.6, -0.6], [0.6, -0.6], [-0.6, 0.6], [0.6, 0.6]].forEach(([x, z]) => {
-        const leg = mesh(new T.CylinderGeometry(0.07, 0.07, 1.6, 5), mat(0x5d4330)); leg.position.set(-2 + x, 0.8, 0.4 + z); g.add(leg);
+        const leg = mesh(new T.CylinderGeometry(0.07, 0.07, 1.6, 5), mat(0x8e8e93)); leg.position.set(-2 + x, 0.8, 0.4 + z); g.add(leg);
       });
       const pole = mesh(new T.CylinderGeometry(0.05, 0.05, 2.6, 5), mat(0x6b6b6b)); pole.position.set(1.5, 1.3, 0.6); g.add(pole);
-      const flag = mesh(new T.BoxGeometry(0.8, 0.48, 0.03), mat(0xe8743b)); flag.position.set(1.9, 2.35, 0.6); g.add(flag);
+      const flag = mesh(new T.BoxGeometry(0.8, 0.48, 0.03), mat(0x8e8e93)); flag.position.set(1.9, 2.35, 0.6); g.add(flag);
       g.userData.flag = flag;
       return g;
     },
-    center(accent) { // 鐘塔與小廣場
+    center(accent) { // 學生的家電：巨大的白色氣炸鍋
       const g = new T.Group();
-      const plaza = mesh(new T.CylinderGeometry(3, 3.1, 0.12, 16), mat(0xcfc3a8)); plaza.position.y = 0.06; g.add(plaza);
-      const base = mesh(new T.CylinderGeometry(0.95, 1.1, 4.2, 8), mat(0xefe6d2)); base.position.y = 2.1; g.add(base);
-      const face = mesh(new T.CylinderGeometry(0.62, 0.62, 0.1, 20), mat(0xffffff, { flatShading: false })); face.rotation.x = Math.PI / 2; face.position.set(0, 3.4, 1.0); g.add(face);
-      const hand = mesh(new T.BoxGeometry(0.07, 0.5, 0.05), mat(0x2f3a44)); hand.position.set(0, 3.4, 1.07); g.add(hand);
-      const roof = mesh(new T.ConeGeometry(1.35, 1.8, 8), mat(accent)); roof.position.y = 5.1; g.add(roof);
-      for (let k = 0; k < 3; k++) {
-        const bench = mesh(new T.BoxGeometry(1, 0.2, 0.35), mat(0x8a6142)); const a = (k / 3) * Math.PI * 2 + 0.5;
-        bench.position.set(Math.cos(a) * 2.3, 0.3, Math.sin(a) * 2.3); bench.rotation.y = -a; g.add(bench);
+      const plaza = mesh(new T.CylinderGeometry(3, 3.1, 0.12, 16), mat(0xf2f2f4)); plaza.position.y = 0.06; g.add(plaza);
+      const white = 0xf7f7f9, panel = 0xe3e3e7, dark = 0x2c2c2e, steel = 0x9a9aa0;
+      const body = mesh(new T.BoxGeometry(9, 5.6, 7), mat(0xffffff, { emissive: 0xffffff, emissiveIntensity: 0.07 })); body.position.y = 2.8; g.add(body);
+      const win = mesh(new T.BoxGeometry(6.6, 2.0, 0.14), mat(dark, { roughness: 0.35 })); win.position.set(0, 2.05, 3.53); g.add(win);
+      const handle = mesh(new T.BoxGeometry(3.2, 0.42, 0.42), mat(panel)); handle.position.set(0, 2.05, 3.8); g.add(handle);
+      const seam = mesh(new T.BoxGeometry(9.16, 0.08, 7.16), mat(0xd0d0d5)); seam.position.y = 5.58; g.add(seam);
+      const top = mesh(new T.BoxGeometry(7.8, 0.22, 3.2), mat(panel)); top.position.set(0, 5.68, -0.2); g.add(top);
+      const disp = mesh(new T.BoxGeometry(2.2, 0.34, 0.12), mat(dark, { roughness: 0.35 })); disp.position.set(0, 5.84, -1.0); g.add(disp);
+      [-2.2, 2.2].forEach(x => {
+        const knob = mesh(new T.CylinderGeometry(0.36, 0.36, 0.2, 14), mat(steel)); knob.position.set(x, 5.9, 0.8); g.add(knob);
+        const mark = mesh(new T.BoxGeometry(0.05, 0.22, 0.05), mat(dark)); mark.position.set(x, 6.04, 0.9); g.add(mark);
+      });
+      // 背面散熱風扇，從另一側看也知道這是家電
+      const vent = mesh(new T.CylinderGeometry(1.7, 1.7, 0.12, 20), mat(0x3a3a3c)); vent.rotation.x = Math.PI / 2; vent.position.set(0, 2.9, -3.53); g.add(vent);
+      const hub = mesh(new T.CylinderGeometry(0.45, 0.45, 0.16, 12), mat(steel)); hub.rotation.x = Math.PI / 2; hub.position.set(0, 2.9, -3.55); g.add(hub);
+      for (let k = 0; k < 4; k++) {
+        const bar = mesh(new T.BoxGeometry(3.0, 0.08, 0.06), mat(0xb8b8be)); bar.position.set(0, 2.2 + k * 0.45, -3.6); g.add(bar);
       }
-      g.userData.hand = hand;
+      // 兩側散熱柵欄
+      [-4.51, 4.51].forEach(x => {
+        for (let k = 0; k < 5; k++) {
+          const slit = mesh(new T.BoxGeometry(0.06, 0.1, 2.2), mat(0x8e8e93)); slit.position.set(x, 3.4 + k * 0.24, 0); g.add(slit);
+        }
+      });
+      [[-3.8, 2.8], [3.8, 2.8], [-3.8, -2.8], [3.8, -2.8]].forEach(([x, z]) => {
+        const foot = mesh(new T.CylinderGeometry(0.2, 0.22, 0.3, 8), mat(steel)); foot.position.set(x, 0.15, z); g.add(foot);
+      });
       return g;
     }
   };
@@ -222,16 +262,16 @@ window.IsleWorld = (function () {
     const mats = [];
     const keep = (m) => { if (!mats.find(x => x.m === m)) mats.push({ m, base: m.color.clone() }); return m; };
 
-    const shallow = new T.Mesh(wobble(new T.CircleGeometry(r * 1.42, 40), seed, 0.1), new T.MeshBasicMaterial({ color: 0x5fb3ad, transparent: true, opacity: 0.28, depthWrite: false }));
+    const shallow = new T.Mesh(wobble(new T.CircleGeometry(r * 1.42, 40), seed, 0.1), new T.MeshBasicMaterial({ color: 0xdfe6e8, transparent: true, opacity: 0.35, depthWrite: false }));
     shallow.geometry.rotateX(-Math.PI / 2); shallow.position.y = 0.02; g.add(shallow);
-    const sand = mesh(wobble(new T.CylinderGeometry(r * 1.15, r * 1.3, 1.2, 40, 1), seed, 0.1), keep(mat(0xe2cf9f))); sand.position.y = -0.3; g.add(sand);
-    const earth = mesh(wobble(new T.CylinderGeometry(r * 1.0, r * 1.08, 0.8, 40, 1), seed, 0.1), keep(mat(0x7c6046))); earth.position.y = 0.3; g.add(earth);
-    const grassCol = shade(0x5f9b4e, 0.92 + rnd() * 0.14);
+    const sand = mesh(wobble(new T.CylinderGeometry(r * 1.15, r * 1.3, 1.2, 40, 1), seed, 0.1), keep(mat(0xf2f2f4))); sand.position.y = -0.3; g.add(sand);
+    const earth = mesh(wobble(new T.CylinderGeometry(r * 1.0, r * 1.08, 0.8, 40, 1), seed, 0.1), keep(mat(0xd8d8dc))); earth.position.y = 0.3; g.add(earth);
+    const grassCol = shade(0xe4e6e6, 0.94 + rnd() * 0.1);
     const grass = mesh(wobble(new T.CylinderGeometry(r * 0.98, r * 1.0, 0.25, 40, 1), seed, 0.1), keep(mat(grassCol))); grass.position.y = 0.78; g.add(grass);
     const top = 0.9;
 
     const lm = landmarks[spec.landmark](spec.accent, rnd);
-    lm.position.set(0, top, -r * 0.15);
+    lm.position.set(0, top, spec.landmark === "center" ? 0 : -r * 0.15);
     g.add(lm);
     // 碼頭朝向群島中央
     const toCenter = Math.atan2(-spec.x, -spec.z);
@@ -257,19 +297,22 @@ window.IsleWorld = (function () {
     }
     for (let k = 0; k < 6; k++) {
       const a = rnd() * Math.PI * 2;
-      const rock = mesh(new T.DodecahedronGeometry(0.25 + rnd() * 0.35, 0), mat(0x8c9599));
+      const rock = mesh(new T.DodecahedronGeometry(0.25 + rnd() * 0.35, 0), mat(0xb8b8be));
       rock.position.set(Math.cos(a) * r * 1.12, 0.25, Math.sin(a) * r * 1.12); g.add(rock);
     }
     for (let k = 0; k < 10; k++) {
       const a = rnd() * Math.PI * 2, d = r * (0.3 + rnd() * 0.6);
-      const f = mesh(new T.SphereGeometry(0.1, 5, 4), mat([0xf2c94c, 0xeb7b9a, 0xffffff, 0xb48ae6][k % 4]), false);
+      const f = mesh(new T.SphereGeometry(0.1, 5, 4), mat([0xffffff, 0xe8e8ea, 0xd0d0d5, 0xbdbdc3][k % 4]), false);
       f.position.set(Math.cos(a) * d, top + 0.08, Math.sin(a) * d); g.add(f);
     }
     g.traverse(o => { if (o.isMesh && o.material !== shallow.material && !o.material.emissive?.getHex?.()) keep(o.material); });
 
+    // 中央島的家電很大，守門人站到廣場外緣，才不會被家電蓋住
+    const kx = spec.landmark === "center" ? r * 0.78 : r * 0.35;
+    const kz = spec.landmark === "center" ? r * 0.12 : r * 0.2;
     const keeper = figure(spec.keeperStyle, 1.05);
-    keeper.position.set(r * 0.35, top, r * 0.2); keeper.rotation.y = toCenter; g.add(keeper);
-    const keeperRing = ring(0xf2b866); keeperRing.position.set(r * 0.35, top + 0.02, r * 0.2); g.add(keeperRing);
+    keeper.position.set(kx, top, kz); keeper.rotation.y = toCenter; g.add(keeper);
+    const keeperRing = ring(0xf2b866); keeperRing.position.set(kx, top + 0.02, kz); g.add(keeperRing);
 
     // 小安：去問島過關之前站在去問島（她就是那裡的守門人），過關之後改站到給他用島的守門人旁邊
     let partner = null;
@@ -309,7 +352,7 @@ window.IsleWorld = (function () {
   }
 
   function makeBridges() {
-    const plank = mat(0xb08456), rail = mat(0x6e5139), gateM = mat(0xc0563a), postM = mat(0x5b4636);
+    const plank = mat(0xd6d6da), rail = mat(0x9a9aa0), gateM = mat(0x8e8e93), postM = mat(0x7a7a80);
     for (let i = 0; i < order.length - 1; i++) {
       const A = isles[order[i]], B = isles[order[i + 1]];
       const P = A.group.position.clone(), Q = B.group.position.clone();
@@ -343,15 +386,15 @@ window.IsleWorld = (function () {
     for (let k = 0; k < 26; k++) {
       const a = (k / 26) * Math.PI * 2 + r() * 0.2;
       const d = 150 + r() * 50, h = 18 + r() * 40;
-      const m = mesh(new T.ConeGeometry(10 + r() * 14, h, 5), mat(0x55776f), false);
+      const m = mesh(new T.ConeGeometry(10 + r() * 14, h, 5), mat(0xb8bec2), false);
       m.position.set(Math.cos(a) * d, h / 2 - 2, Math.sin(a) * d); m.rotation.y = r() * 3;
       scene.add(m);
     }
     // 小帆船
     for (let k = 0; k < 4; k++) {
       const b = new T.Group();
-      const hull = mesh(new T.BoxGeometry(0.8, 0.35, 2), mat(0x8a5a3b)); hull.position.y = 0.15; b.add(hull);
-      const mast = mesh(new T.CylinderGeometry(0.05, 0.05, 2, 5), mat(0x5d4330)); mast.position.y = 1.2; b.add(mast);
+      const hull = mesh(new T.BoxGeometry(0.8, 0.35, 2), mat(0xb8b8be)); hull.position.y = 0.15; b.add(hull);
+      const mast = mesh(new T.CylinderGeometry(0.05, 0.05, 2, 5), mat(0x8e8e93)); mast.position.y = 1.2; b.add(mast);
       const sailGeo = new T.BufferGeometry().setFromPoints([new T.Vector3(0, 0.4, 0.1), new T.Vector3(0, 2.1, 0.1), new T.Vector3(0, 0.4, 1.1)]);
       sailGeo.computeVertexNormals();
       const sail = new T.Mesh(sailGeo, new T.MeshStandardMaterial({ color: 0xf6f0e2, side: T.DoubleSide, flatShading: true }));
@@ -363,8 +406,8 @@ window.IsleWorld = (function () {
 
   /* ---------- 天色 ---------- */
   const MOODS = {
-    dawn: { bg: 0x9cc3bd, fog: [0x9cc3bd, 90, 260], hemi: [0xfff4e0, 0x1f5a5f, 1.05], sun: [0xffe2b8, 1.9], water: 0x1d6b72, lamp: 0.15 },
-    fog: { bg: 0xb7c6c3, fog: [0xb7c6c3, 25, 140], hemi: [0xf2f4f0, 0x5b7a78, 1.2], sun: [0xffffff, 0.9], water: 0x3f7f82, lamp: 0.35 },
+    dawn: { bg: 0xf2f2f4, fog: [0xf2f2f4, 90, 260], hemi: [0xffffff, 0xcfd4d6, 1.15], sun: [0xffffff, 1.7], water: 0xdfe6e8, lamp: 0.15 },
+    fog: { bg: 0xe6e8ea, fog: [0xe6e8ea, 25, 140], hemi: [0xffffff, 0xc8ced1, 1.2], sun: [0xffffff, 0.9], water: 0xc9d2d6, lamp: 0.35 },
     night: { bg: 0x1a2f45, fog: [0x1a2f45, 80, 240], hemi: [0x9fb4e8, 0x1b3040, 0.95], sun: [0xb9c9ff, 1.0], water: 0x16485a, lamp: 1.8 }
   };
   function applyMood(name) {
@@ -402,12 +445,12 @@ window.IsleWorld = (function () {
     container.appendChild(labelLayer);
 
     scene = new T.Scene();
-    scene.background = new T.Color(0x9cc3bd);
-    scene.fog = new T.Fog(0x9cc3bd, 90, 260);
+    scene.background = new T.Color(0xf2f2f4);
+    scene.fog = new T.Fog(0xf2f2f4, 90, 260);
     camera = new T.PerspectiveCamera(38, 1, 0.5, 600);
 
-    hemi = new T.HemisphereLight(0xfff4e0, 0x1f5a5f, 1.05); scene.add(hemi);
-    sun = new T.DirectionalLight(0xffe2b8, 1.9);
+    hemi = new T.HemisphereLight(0xffffff, 0xcfd4d6, 1.15); scene.add(hemi);
+    sun = new T.DirectionalLight(0xffffff, 1.7);
     sun.position.set(-35, 60, 25); sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     Object.assign(sun.shadow.camera, { left: -50, right: 50, top: 50, bottom: -50, near: 1, far: 160 });
@@ -415,7 +458,7 @@ window.IsleWorld = (function () {
     scene.add(sun);
 
     const wg = new T.PlaneGeometry(700, 700, 110, 110); wg.rotateX(-Math.PI / 2);
-    water = new T.Mesh(wg, new T.MeshStandardMaterial({ color: 0x1d6b72, roughness: 0.25, metalness: 0.1, flatShading: true }));
+    water = new T.Mesh(wg, new T.MeshStandardMaterial({ color: 0xdfe6e8, roughness: 0.25, metalness: 0.1, flatShading: true }));
     water.receiveShadow = true; water.position.y = -0.1; scene.add(water);
     waterBase = Float32Array.from(wg.attributes.position.array);
 

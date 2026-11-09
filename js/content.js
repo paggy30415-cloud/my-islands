@@ -4,7 +4,7 @@
  * 內容出自 I3840 115-1 W7 課程設計（五步流程、守門人、交接物、設計開發報告八章）。
  */
 window.ISLE = {
-  worldName: "開發流程群島",
+  worldName: "我的氣炸鍋",
   opening: "帶著你想做的東西走過五座島，找到用它的人和做出它的方法。",
   missionTitle: "這一趟的任務：把你在課堂上選的這台家電設計出來",
   // 免費額度（2026-10-29 Kevin 帳號 AI Studio 額度頁）：3.6 Flash 每天 20 次、每分鐘 5 次，走不完一輪；
@@ -25,12 +25,12 @@ window.ISLE = {
   islands: [
     {
       id: "ask",
-      accent: "#d2694a",
+      accent: "#f4f4f6",
       monsterColor: 0x8a63c9,
-      keeperStyle: { body: 0x6c8f5a, hat: "dome", hatColor: 0xe0b25c },
+      keeperStyle: { body: 0x2f3542, hat: "none", hatColor: 0x2f3542, suit: true, hair: 0x3a2a22, hairTied: true, tongs: true, legs: 0x2f3542 },
       no: 1,
       name: "去問島",
-      color: "#f2b866",
+      color: "#a8a8ae",
       chapter: "一、使用者與處境",
       doing: "弄清楚用你這台家電的人是誰、那個人遇到什麼困難。不是猜，是去問。",
       keeper: { name: "小安", title: "你這台家電的使用者", face: "🧑" },
@@ -56,12 +56,12 @@ window.ISLE = {
     },
     {
       id: "define",
-      accent: "#c94a44",
+      accent: "#e6e6ea",
       monsterColor: 0x9aa7b0,
       keeperStyle: { body: 0x405f7a, hat: "cap", hatColor: 0x2d3e48 },
       no: 2,
       name: "說清楚島",
-      color: "#8fd0c6",
+      color: "#9a9aa1",
       chapter: "二、問題定義",
       doing: "把困難寫成一句話：誰，需要什麼，因為什麼。",
       keeper: { name: "阿追", title: "一句話編輯", face: "🧐" },
@@ -79,12 +79,12 @@ window.ISLE = {
     },
     {
       id: "ideate",
-      accent: "#7a5fb5",
+      accent: "#dcdce1",
       monsterColor: 0x3f9a63,
       keeperStyle: { body: 0x8a5a3b, hat: "cone", hatColor: 0x6b4a8a },
       no: 3,
       name: "想辦法島",
-      color: "#b9a3e3",
+      color: "#8e8e95",
       chapter: "三、方案與取捨",
       doing: "先提很多方案，再挑一個。",
       keeper: { name: "匠叔", title: "工匠", face: "🧔" },
@@ -103,12 +103,12 @@ window.ISLE = {
     },
     {
       id: "build",
-      accent: "#b8643f",
+      accent: "#d2d2d8",
       monsterColor: 0x3a4a5a,
       keeperStyle: { body: 0xa0663f, hat: "dome", hatColor: 0x2b2f33, pack: 0x5d4330 },
       no: 4,
       name: "做出來島",
-      color: "#f39c8f",
+      color: "#83838a",
       chapter: "四、原型與 AI 的設計",
       doing: "說清楚你的原型：家電維持原本的樣子，只是裡面多了 AI。它怎麼讓人知道它在想什麼，猜錯了怎麼辦。",
       keeper: { name: "匠叔", title: "工匠", face: "🧔" },
@@ -128,12 +128,12 @@ window.ISLE = {
     },
     {
       id: "test",
-      accent: "#3f7fb8",
+      accent: "#ececef",
       monsterColor: 0xd9b44a,
       keeperStyle: { body: 0x2f6f6a, hat: "cap", hatColor: 0xe8743b },
       no: 5,
       name: "給他用島",
-      color: "#9cc7f0",
+      color: "#b0b0b6",
       chapter: "五、測試與發現",
       doing: "把原型交給小安試，不說明怎麼用，看小安卡在哪一刻。",
       keeper: { name: "阿看", title: "測試觀察員", face: "🕵️" },
@@ -161,7 +161,7 @@ window.ISLE = {
 
   center: {
     name: "回頭修改島",
-    accent: "#3f6d7a",
+    accent: "#dedee3",
     keeperStyle: { body: 0x5a6b78, hat: "cone", hatColor: 0x3f6d7a },
     keeper: { name: "鐘塔", title: "回頭修改的守塔人", face: "🗼" },
     doing: "五座島都過了，回來看自己寫的哪裡要改，再出發一圈。",
